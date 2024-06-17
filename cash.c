@@ -1,10 +1,8 @@
-#include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <termios.h>
@@ -14,10 +12,6 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-// #define ANSI_COLOR_MAGENTA "\x1b[35m"
-// #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_GRAY    "\x1b[90m"
 
 #define m_verbose(...)                      \
@@ -26,10 +20,6 @@
         printf(__VA_ARGS__);                \
         printf("%s", ANSI_COLOR_RESET);     \
     }
-//#define m_error(...)                        \
-//    fprintf(stderr, "%s", ANSI_COLOR_RED);  \
-//    fprintf(stderr, __VA_ARGS__);           \
-//    fprintf(stderr, "%s", ANSI_COLOR_RESET);
 
 #define m_error(...)                        \
     fprintf(stdout, "%s", ANSI_COLOR_RED);  \
@@ -45,7 +35,6 @@ struct key_value {
 // function prototypes
 void execute_command(char *cmd, char *arg[], char *env[]);
 char *search_path(char *cmd, char *path[]);
-// int tokenize(char *);
 void tokenize(char *);
 void set_raw_mode(struct termios *);
 void reset_terminal_mode(struct termios *);
@@ -53,12 +42,8 @@ int get_command(char *);
 
 // global variables
 bool verbose = true;
-char gpath[128]; // hold token strings
 char *input_token[64];  // token string pointers
 int n;           // number of token strings
-char dpath[128]; // hold dir strings in PATH
-char *dir[64];   // dir string pointers
-int ndir;        // number of dirs
 
 struct key_value *envs[256];
 char *paths[64];
@@ -160,7 +145,6 @@ int main(int argc, char *argv[], char *env[]) {
         }
         if (strcmp(cmd, "exit") == 0) {
             break;
-            // exit(0);
         }
         pid = fork();
         if (pid > 0) {
@@ -173,22 +157,8 @@ int main(int argc, char *argv[], char *env[]) {
             execute_command(cmd, input_token, env);
         }
     }
-
     return 0;
 }
-
-//int tokenize(char *pathname) {
-//    char *s;
-//    strcpy(gpath, pathname); // copy into global gpath[]
-//    s = strtok(gpath, " ");
-//    n = 0;
-//    while (s != NULL) {
-//        input_token[n++] = s; // token string pointers
-//        s = strtok(NULL, " ");
-//    }
-//    input_token[n] = NULL;
-//    return 0;
-//}
 
 void tokenize(char *pathname) {
     char *s;
